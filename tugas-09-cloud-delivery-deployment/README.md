@@ -22,6 +22,8 @@ Pemerintah ingin membangun **Sistem Data Kependudukan** (nama, NIK, alamat, data
 
 ### 1. Rekomendasi Deployment Model: Hybrid Cloud
 
+Menurut NIST SP 800-145, **Hybrid Cloud** adalah gabungan dua atau lebih infrastruktur cloud yang berbeda (private, community, atau public) yang tetap berdiri sebagai entitas terpisah, tetapi dihubungkan oleh teknologi standar atau proprietary yang memungkinkan portabilitas data dan aplikasi.
+
 Data inti (NIK, biometrik, alamat) disimpan di **Private Cloud** milik negara. Komponen yang tidak memuat data sensitif (portal publik, cek status) berjalan di **Public Cloud** yang bisa dibesarkan saat lonjakan. Keduanya dihubungkan lewat jalur privat terenkripsi.
 
 | Karakteristik NIST | Kerahasiaan | Skalabilitas | Penerapan di Hybrid |
@@ -29,8 +31,8 @@ Data inti (NIK, biometrik, alamat) disimpan di **Private Cloud** milik negara. K
 | On-demand self-service | Provisioning di private cloud diatur kebijakan ketat | Tim instansi bisa menambah resource tanpa tiket manual | Portal self-service dengan akses berbasis peran |
 | Broad network access | Akses data inti dibatasi lewat jaringan pemerintah (VPN/jaringan khusus) | Ribuan instansi bisa mengakses dari berbagai perangkat | API gateway di public segment untuk layanan publik, jalur privat untuk data sensitif |
 | Resource pooling | Pool private cloud tidak dibagi dengan tenant lain | Pool public cloud dipakai bersama untuk komponen non-sensitif | Isolasi untuk data inti, multi-tenant hanya untuk front-end |
-| Rapid elasticity | Private cloud sulit di-scale cepat karena hardware terbatas | Public cloud bisa scale out otomatis saat pemilu/pendaftaran sekolah | Cloud bursting untuk beban baca dan portal |
-| Measured service | Audit log akses data inti wajib (UU PDP) | Pemakaian terukur untuk perencanaan kapasitas | Metering di kedua segmen, dipantau terpusat |
+| Rapid elasticity | Private cloud sulit di-scale cepat karena hardware terbatas | Public cloud bisa scale out otomatis saat pemilu/pendaftaran sekolah | Cloud bursting khusus beban non-sensitif (portal dan baca data minimal); data inti tidak pernah diproses di public cloud |
+| Measured service | Audit log akses data inti diperlukan untuk akuntabilitas dan kepatuhan UU PDP (pencatatan pemrosesan dan pengamanan data) | Pemakaian terukur untuk perencanaan kapasitas | Metering di kedua segmen, dipantau terpusat |
 
 Kebutuhan kerahasiaan dan skalabilitas saling bertabrakan. Hybrid memisahkan keduanya: kerahasiaan dijaga di private cloud, skalabilitas diambil dari public cloud, sehingga negara tetap mengendalikan penuh data sensitif.
 
@@ -56,16 +58,16 @@ Mitigasi:
 - Prinsip least privilege, segmentasi jaringan (zero trust), dan audit log akses.
 
 **Risiko 2: Inkonsistensi data antara private dan public segment.**
-Cache/replika di public cloud bisa basi, mis. status penduduk sudah berubah tapi portal masih menampilkan data lama.
+Cache/replika di public cloud bisa basi, mis. status penduduk sudah berubah tapi portal masih menampilkan data lama. Yang di-cache di public segment hanya data minimal atau data yang sudah di-masking/tokenisasi (bukan data sensitif lengkap), sehingga konsisten dengan prinsip pemisahan di Bagian 1.
 Mitigasi:
-- Single source of truth di private cloud, public hanya menyimpan cache dengan TTL pendek.
+- Single source of truth di private cloud, public hanya menyimpan cache data minimal dengan TTL pendek.
 - Sinkronisasi berbasis event/message queue dengan retry dan invalidasi cache.
 - Rekonsiliasi data secara berkala.
 
 **Risiko 3: Ketergantungan pada penyedia public cloud dan kedaulatan data.**
-Gangguan atau perubahan kebijakan penyedia bisa mengganggu layanan publik, dan pemrosesan di luar negeri bisa melanggar aturan lokasi data.
+Gangguan atau perubahan kebijakan penyedia bisa mengganggu layanan publik, dan pemrosesan di luar negeri bisa melanggar aturan lokasi data. Menurut PP No. 71 Tahun 2019 tentang Penyelenggaraan Sistem dan Transaksi Elektronik, penyelenggara sistem elektronik lingkup publik (termasuk instansi pemerintah) pada prinsipnya wajib mengelola, memproses, dan/atau menyimpan sistem dan data elektroniknya di wilayah Indonesia.
 Mitigasi:
-- Pilih penyedia dengan region di Indonesia dan patuh UU PDP.
+- Pilih penyedia dengan region di Indonesia dan patuh UU PDP serta PP 71/2019.
 - Pakai teknologi portabel (container/Kubernetes, standar terbuka) agar mudah dipindah.
 - Siapkan failover ke private cloud untuk fungsi esensial (mode terbatas).
 
