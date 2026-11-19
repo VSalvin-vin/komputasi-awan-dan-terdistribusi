@@ -2,6 +2,14 @@
 
 **Materi terkait:** Karakteristik esensial cloud computing (NIST SP 800-145), Deployment Model (Public/Private/Hybrid/Community), Service Model (IaaS/PaaS/SaaS).
 
+**Kelompok:** 
+
+| Nama | NIM |
+|---|---|
+| Fahmi Fajar Maulana | 103072400069 | 
+| Muhammad Kelvin Firmansyah | 103072400096 |
+| Nayyara Aurelia Putri | 103072400097 |
+
 > Bagian 2 mata kuliah ini murni **analisis & desain di atas kertas** — tidak ada biaya cloud sama sekali, karena tugas berhenti di tahap rekomendasi, bukan implementasi nyata (implementasi baru mulai Tugas 11).
 
 ## Studi Kasus
